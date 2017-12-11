@@ -1,9 +1,3 @@
-function RevisedSimplexMethod
-A = [4 3 -1; 2 3 3];
-b = [6; 4];
-c = [2 1 3];
-
-%% RevisedSimplexMethod
 % RevisedSimplexMethod solves Linear Programming Problems (LPP) in canonical 
 % form of LPP in standard form:
 % 
@@ -16,48 +10,28 @@ c = [2 1 3];
 % $$ \mathbf{x} \geq \mathbf{0} $$
 % 
 % INPUT: A, b, and c
-% 
-% Notice that in order to know who is the entering and departing variable
-% we must instruct the computer which element we mean, for that reason we
-% must know their position and how to indicate it. THe first step then is
-% to know the index of the slack variables, for that you need to know how
-% many variables you have and how many slack variables you need to add.
-% 
-% Go to the command window of Matlab and type: 
-% A = [1 2 3; 4 5 6; 7 8 9]
-% 
-% b = [1;2;5;7;-5]
-% 
-% b(1:3)
-% 
-% Idx = find(b<0)
-% 
-% A(:,2)
-% 
-% A(3,:)
-% 
-% [m,n] = size(A)
-% Id = eye(3)
-% 
-% We will need $$ B^{-1} $$. Who is $$ B^{-1} $$ at the start? Which size
-% it it? (You will need the "eye" command here)
-% 
-% We need to indicate the vector $$ c_B $$. Who is it at the start?
-% 
-% What is the initial value of z? Who is the initial x? Who is xB? Define
-% them.
-% 
-% 
+
+function [x, max] = RevisedSimplexMethod(A, b, c)
 
 [m n] = size(A);
 A = [A eye(m)];
 c = [c zeros(1, m)];
+
+% Initial Setup
 Binv = eye(m);
 xB = Binv*b;
 cB = zeros(m, 1);
+ObjRow = [1 cB' * Binv]*[-c; A];
+[value p] = min(ObjRow);
 
+while value < 0
+    tp = Binv*A(:,p);
+    thetaratios = xB./tp; % ./ element by element
+    q = find(thetaratios > 0, 1);
+    
+    break;
+end
 
-% 
 % * STEP1 Determine entering variable: 
 % Here you must compute the objective
 % row and apply the optimality criterion, this means, that you must check
@@ -66,17 +40,14 @@ cB = zeros(m, 1);
 % several of them could be given, thus instruct the computer to take the
 % first one).
 
-ObjRow = [1 cB' * Binv]*[-c'; A];
 
-[Value p] = min(ObjRow); %from help min. Or you could sort it.
-
-tp = Binv*A(:,2);
-thetaratios = xB./tp % ./ element by element
-Idx = find(x>0)
+%tp = Binv*A(:,2);
+%thetaratios = xB./tp % ./ element by element
+%Idx = find(x>0)
 
 
-Eta=-tp/tp(q)
-Eta(q) = 1/tp(q)
+%Eta=-tp/tp(q)
+%Eta(q) = 1/tp(q)
 
 % 
 % * STEP2 Determine departing variable
