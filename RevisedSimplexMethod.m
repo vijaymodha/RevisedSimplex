@@ -11,7 +11,7 @@
 % 
 % INPUT: A, b, and c
 
-function RevisedSimplexMethod(A, b, c)
+function [z, x] = RevisedSimplexMethod(A, b, c)
 
 [m n] = size(A);
 
@@ -21,16 +21,23 @@ A = [A eye(m)];
 c = [c zeros(1, m)];
 Binv = eye(m);
 xB = Binv*b;
+x = [zeros(1, n), xB'];
 cB = zeros(m, 1);
 ObjRow = [1 cB' * Binv]*[-c; A];
-[value p] = min(ObjRow);
+value = min(ObjRow);
 
 while value < 0
+    [~, p] = min(ObjRow);
+    
+    % Step 2
     tp = Binv*A(:,p);
     thetaratios = xB./tp; % ./ element by element
     q = find(thetaratios > 0, 1);
+    
+    % Step 3
     cB(q) = c(p);
     
+    % Step 4
     Eta = -tp/tp(q);
     Eta(q) = 1/tp(q);
     
@@ -42,7 +49,11 @@ while value < 0
     z = M(1);
     xB = M(2:n);
     
-    ObjRow = [1 cB' * Binv]*[-c; A];
-    [value p] = min(ObjRow);
+    x(p) = xB(q);
     
+    % Step 1
+    ObjRow = [1 cB' * Binv]*[-c; A];
+    value = min(ObjRow);
 end
+
+x = x(1:n);
