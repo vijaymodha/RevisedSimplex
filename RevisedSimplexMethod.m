@@ -1,4 +1,7 @@
 function RevisedSimplexMethod
+A = [4 3 -1; 2 3 3];
+b = [6; 4];
+c = [2 1 3];
 
 %% RevisedSimplexMethod
 % RevisedSimplexMethod solves Linear Programming Problems (LPP) in canonical 
@@ -44,6 +47,17 @@ function RevisedSimplexMethod
 % What is the initial value of z? Who is the initial x? Who is xB? Define
 % them.
 % 
+% 
+
+[m n] = size(A);
+A = [A eye(m)];
+c = [c zeros(1, m)];
+Binv = eye(m);
+xB = Binv*b;
+cB = zeros(m, 1);
+
+
+% 
 % * STEP1 Determine entering variable: 
 % Here you must compute the objective
 % row and apply the optimality criterion, this means, that you must check
@@ -51,6 +65,19 @@ function RevisedSimplexMethod
 % index of the most negative entry in the objective row (remember that
 % several of them could be given, thus instruct the computer to take the
 % first one).
+
+ObjRow = [1 cB' * Binv]*[-c'; A];
+
+[Value p] = min(ObjRow); %from help min. Or you could sort it.
+
+tp = Binv*A(:,2);
+thetaratios = xB./tp % ./ element by element
+Idx = find(x>0)
+
+
+Eta=-tp/tp(q)
+Eta(q) = 1/tp(q)
+
 % 
 % * STEP2 Determine departing variable
 % You will need here the pivotal column $$ t_p $$ and the vector of basic
