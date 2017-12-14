@@ -11,24 +11,7 @@
 % 
 % INPUT: A, b, and c
 
-%A = [4 3 -1; 2 3 3];
-%b = [6; 4];
-%c = [2 1 3];
-
-%A=[2, -1, 3; 1, 3, 5; 2, 0, 1];
-%b=[6; 10; 7];
-%c=[2, 1, 3];
-
-%A = [1, -1, -1, 0; -2, 5, -3, -3; 2, -5, 0, 1];
-%b = [2; 10; 5];
-%c = [2, 3, 1, 1];
-
-
-function [z, x] = RevisedSimplexMethod%(A, b, c)
-A = [4 3 -1; 2 3 3];
-b = [6; 4];
-c = [2 1 3];
-
+function [z, xB, xB_idx] = RevisedSimplexMethod(A, b, c)
 
 tol=1e-15;
 [m,n] = size(A);
@@ -39,7 +22,7 @@ A = [A eye(m)];
 c = [c zeros(1, m)];
 Binv = eye(m);
 xB = Binv*b;
-x = [zeros(1, n), xB'];
+xB_idx = n+1:n+m;
 cB = zeros(m, 1);
 ObjRow = [1 cB' * Binv]*[-c; A];
 [value,p] = min(ObjRow);
@@ -49,7 +32,7 @@ while value < -tol
     tp = Binv*A(:,p);
     Idx = find(tp>0);
     
-    thetaratios = xB(Idx)./tp(Idx); % ./ element by element %INF APPEARS HERE    
+    thetaratios = xB(Idx)./tp(Idx); % ./ element by element
    
     [~,q1] = min(thetaratios);
     q = Idx(q1);
@@ -60,6 +43,7 @@ while value < -tol
         
     % Step 3
     cB(q) = c(p);
+    xB_idx(q) = p;
     
     % Step 4
     Eta = -tp/tp(q);
@@ -73,11 +57,7 @@ while value < -tol
     z = M(1);
     xB = M(2:end);
     
-    x(p) = xB(q);
-    
     % Step 1
-     cB' * Binv
     ObjRow = [1 cB' * Binv]*[-c; A];
     [value,p] = min(ObjRow);
 end
-%x = x(1:n);
