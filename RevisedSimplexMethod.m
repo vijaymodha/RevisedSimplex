@@ -11,9 +11,27 @@
 % 
 % INPUT: A, b, and c
 
-function [z, x] = RevisedSimplexMethod(A, b, c)
+%A = [4 3 -1; 2 3 3];
+%b = [6; 4];
+%c = [2 1 3];
 
-[m n] = size(A);
+%A=[2, -1, 3; 1, 3, 5; 2, 0, 1];
+%b=[6; 10; 7];
+%c=[2, 1, 3];
+
+%A = [1, -1, -1, 0; -2, 5, -3, -3; 2, -5, 0, 1];
+%b = [2; 10; 5];
+%c = [2, 3, 1, 1];
+
+
+function [z, x] = RevisedSimplexMethod%(A, b, c)
+A = [4 3 -1; 2 3 3];
+b = [6; 4];
+c = [2 1 3];
+
+
+tol=1e-15;
+[m,n] = size(A);
 
 % Initial Setup
 z = 0;
@@ -24,16 +42,22 @@ xB = Binv*b;
 x = [zeros(1, n), xB'];
 cB = zeros(m, 1);
 ObjRow = [1 cB' * Binv]*[-c; A];
-value = min(ObjRow);
+[value,p] = min(ObjRow);
 
-while value < 0
-    [~, p] = min(ObjRow);
-    
+while value < -tol    
     % Step 2
     tp = Binv*A(:,p);
-    thetaratios = xB./tp; % ./ element by element
-    q = find(thetaratios > 0, 1);
+    Idx = find(tp>0);
     
+    thetaratios = xB(Idx)./tp(Idx); % ./ element by element %INF APPEARS HERE    
+   
+    [~,q1] = min(thetaratios);
+    q = Idx(q1);
+    
+    if (isempty(q))
+        error('NO FINITE OPTIMAL SOLUTIONS')
+    end
+        
     % Step 3
     cB(q) = c(p);
     
@@ -47,13 +71,13 @@ while value < 0
     
     M = [1 (cB' * Binv); zeros(m, 1) Binv] * [0; b];
     z = M(1);
-    xB = M(2:n);
+    xB = M(2:end);
     
     x(p) = xB(q);
     
     % Step 1
+     cB' * Binv
     ObjRow = [1 cB' * Binv]*[-c; A];
-    value = min(ObjRow);
+    [value,p] = min(ObjRow);
 end
-
-x = x(1:n);
+%x = x(1:n);
